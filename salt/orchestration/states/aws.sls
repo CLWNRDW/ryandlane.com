@@ -14,8 +14,8 @@
 
 Ensure elb security group exists:
   boto_secgroup.present:
-    - name: elb
-    - description: elb
+    - name: elb-external
+    - description: elb-external
     - rules:
         - ip_protocol: tcp
           from_port: 80
@@ -35,7 +35,7 @@ Ensure {{ service_name }} security group exists:
         - ip_protocol: tcp
           from_port: 80
           to_port: 80
-          source_group_name: elb
+          source_group_name: elb-external
     - vpc_id: {{ pillar.vpc.vpc_id }}
 
 Ensure {{ cluster_name }} role exists:
@@ -95,7 +95,7 @@ Ensure {{ cluster_name }} elb exists:
       - {{ subnet }}
       {% endfor %}
     - security_groups:
-        - elb
+        - elb-external
     - cnames:
         - name: blog.{{ pillar.domain }}.
           zone: {{ pillar.domain }}.
@@ -106,11 +106,11 @@ Ensure {{ cluster_name }} asg exists:
     - name: {{ cluster_name }}
     - launch_config_name: {{ cluster_name }}
     - launch_config:
-      - image_id: {{ salt['pillar.get']('ami:{0}:hvm:trusty'.format('useast1')) }}
+      - image_id: {{ salt['pillar.get']('ami:{0}:hvm:xenial'.format('useast1')) }}
       - key_name: {{ pillar.key_name }}
       - security_groups:
         - base
-        - saltmaster
+        - {{ service_name }}
       - instance_profile_name: {{ cluster_name }}
       - instance_type: t2.tiny
       - associate_public_ip_address: True
@@ -141,19 +141,12 @@ Ensure {{ cluster_name }} asg exists:
               pip install -r /srv/ryandlane.com/requirements.txt
               deactivate
               export DOMAIN="{{ pillar.domain }}"
-              #mkdir /etc/salt
-              #cp /srv/ryandlane.com/salt/config/states/startup/salt/minion /etc/salt/minion
               /srv/salt/venv/bin/salt-call --local -c /srv/ryandlane.com/salt/config/states/startup/salt state.sls startup
               salt-call state.highstate
               salt-call grains.setval elbs "['{{ cluster_name }}']"
               salt-call state.sls elb.register
-    - vpc_zone_identifier:
-      {% for subnet in pillar.vpc.vpc_subnets %}
-      - {{ subnet }}
-      {% endfor %}
-    - availability_zones:
-      - us-east-1a
-      - us-east-1d
+    - vpc_zone_identifier: {{ pillar.vpc.vpc_subnets }}
+    - availability_zones: {{ pillar.vpn.vpc_azs }}
     - min_size: 1
     - max_size: 1
     - desired_capacity: 1
@@ -167,10 +160,7 @@ Ensure {{ cluster_name }} asg exists:
 Ensure {{ cluster_name }} RDS subnet group exists:
   boto_rds.subnet_group_present:
     - name: {{ cluster_name }}
-    - subnet_ids:
-      {% for subnet in pillar.vpc.vpc_subnets %}
-        - {{ subnet }}
-      {% endfor %}
+    - subnet_ids: {{ pillar.vpc.vpc_subnets }}
 
 #Ensure {{ cluster_name }} RDS exists:
 #  boto_rds.present:
