@@ -12,7 +12,7 @@
 {% set service_name = salt['environ.get']('service_name') %}
 {% set cluster_name = '{0}-{1}-{2}'.format(service_name, salt['environ.get']('service_instance'), salt['environ.get']('region', 'useast1')) %}
 
-Ensure elb security group exists:
+Ensure elb-external security group exists:
   boto_secgroup.present:
     - name: elb-external
     - description: elb-external
@@ -20,11 +20,13 @@ Ensure elb security group exists:
         - ip_protocol: tcp
           from_port: 80
           to_port: 80
-          source_group_name: 0.0.0.0/0
+          cidr_ip:
+            - 0.0.0.0/0
         - ip_protocol: tcp
           from_port: 443
           to_port: 443
-          source_group_name: 0.0.0.0/0
+          cidr_ip:
+            - 0.0.0.0/0
     - vpc_id: {{ pillar.vpc.vpc_id }}
     - profile: primary_profile
 
