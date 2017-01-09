@@ -37,8 +37,7 @@ def parse_host():
     name = salt.utils.network.get_fqhostname()
     match = _get_match(name)
     if not match:
-        log.error("Could not parse hostname: not on ec2 and no pattern"
-                  " match found")
+        log.error("Could not parse hostname: no pattern match found.")
         return {}
     group_len = len(match.groups())
     if group_len == 6:
