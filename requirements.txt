@@ -1,13 +1,13 @@
--e git+https://github.com/saltstack/salt@2015.8#egg=salt
-boto==2.39.0
-boto3==1.2.3
-cryptography==1.2.2
+-e git+https://github.com/saltstack/salt@2016.11#egg=salt
+boto==2.45.0
+boto3==1.4.3
+cryptography==1.7.1
 tendo==0.2.6
 # ndg-httpsclient and pyasn1 needed for requests security
-ndg-httpsclient==0.4.0
+ndg-httpsclient==0.4.2
 pyasn1==0.1.9
 requests==2.9.1
 # For netaddress salt module (IP range information)
 netaddr==0.7.15
 # For block set syntax
-Jinja2==2.8
+Jinja2==2.9.2

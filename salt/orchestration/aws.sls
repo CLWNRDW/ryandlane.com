@@ -166,6 +166,7 @@ Ensure {{ grains.cluster_name }} RDS subnet group exists:
   boto_rds.subnet_group_present:
     - name: {{ grains.cluster_name }}
     - subnet_ids: {{ pillar.vpc.vpc_subnets }}
+    - description: {{ grains.cluster_name }} RDS subnet group
     - profile: primary_profile
 
 #Ensure {{ grains.cluster_name }} RDS exists:
