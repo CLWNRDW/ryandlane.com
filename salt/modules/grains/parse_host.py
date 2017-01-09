@@ -23,7 +23,7 @@ def _grains_defined_in_file():
 
 
 def _get_match(name):
-    # Example: blog-web-production-useast1-h80hj90.lyft.net
+    # Example: blog-web-production-useast1-h80hj90.example.com
     name_regex = '^(\w+)-(\w+)-(\w+)-(\w+)-(\w+)($|\.{1})'
     match = re.match(name_regex, name)
     return match
