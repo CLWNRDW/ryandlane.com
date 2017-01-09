@@ -116,7 +116,7 @@ Ensure {{ grains.workers.web.cluster_name }} asg exists:
         - base
         - {{ grains.service_name }}
       - instance_profile_name: {{ grains.iam_role_name }}
-      - instance_type: t2.tiny
+      - instance_type: t2.micro
       - associate_public_ip_address: True
       - cloud_init:
           scripts:
