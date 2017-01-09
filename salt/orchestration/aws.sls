@@ -150,7 +150,7 @@ Ensure {{ cluster_name }} asg exists:
               salt-call grains.setval elbs "['{{ cluster_name }}']"
               salt-call state.sls elb.register
     - vpc_zone_identifier: {{ pillar.vpc.vpc_subnets }}
-    - availability_zones: {{ pillar.vpn.vpc_azs }}
+    - availability_zones: {{ pillar.vpc.vpc_azs }}
     - min_size: 1
     - max_size: 1
     - desired_capacity: 1
