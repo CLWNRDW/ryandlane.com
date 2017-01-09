@@ -10,7 +10,7 @@
 {% endif %}
 {% endfor %}
 {% set service_name = salt['environ.get']('service_name') %}
-{% set cluster_name = '{0}-{1}-{2}'.format(service_name, salt['environ.get']('service_instance'), salt['environ.get']('region', 'useast1') %}
+{% set cluster_name = '{0}-{1}-{2}'.format(service_name, salt['environ.get']('service_instance'), salt['environ.get']('region', 'useast1')) %}
 
 Ensure elb security group exists:
   boto_secgroup.present:
