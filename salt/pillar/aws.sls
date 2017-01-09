@@ -1,5 +1,5 @@
 # Currently one vpc per region
-{% if grains.region == 'useast1' %}
+# Only using us-east-1 for now, so no conditionals
 {% set aws_region = 'us-east-1' %}
 vpc:
   vpc_id: vpc-ea50fc8f
@@ -12,7 +12,6 @@ vpc:
     - us-east-1a
     - us-east-1d
     - us-east-1e
-{% endif %}
 
 primary_profile:
   region: {{ aws_region }}
