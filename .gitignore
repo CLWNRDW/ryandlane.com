@@ -35,9 +35,12 @@ nosetests.xml
 .project
 .pydevproject
 
-example/.orchestration/*
-!example/.orchestration/minion
-!example/.orchestration/etc/salt/.exists
-example/pillar/local.sls
+# rope
+.ropeproject
+
+salt/.orchestration/*
+!salt/.orchestration/minion
+!salt/.orchestration/etc/salt/.exists
+salt/pillar/local.sls
 
 venv
