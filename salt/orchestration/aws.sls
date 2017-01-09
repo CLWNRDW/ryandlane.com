@@ -9,8 +9,6 @@
         - result: False
 {% endif %}
 {% endfor %}
-{% set service_name = salt['environ.get']('service_name') %}
-{% set cluster_name = '{0}-{1}-{2}'.format(service_name, salt['environ.get']('service_instance'), salt['environ.get']('region', 'useast1')) %}
 
 Ensure elb-external security group exists:
   boto_secgroup.present:
@@ -30,10 +28,10 @@ Ensure elb-external security group exists:
     - vpc_id: {{ pillar.vpc.vpc_id }}
     - profile: primary_profile
 
-Ensure {{ service_name }} security group exists:
+Ensure {{ grains.service_name }} security group exists:
   boto_secgroup.present:
-    - name: {{ service_name }}
-    - description: {{ service_name }}
+    - name: {{ grains.service_name }}
+    - description: {{ grains.service_name }}
     - rules:
         - ip_protocol: tcp
           from_port: 80
@@ -42,9 +40,9 @@ Ensure {{ service_name }} security group exists:
     - vpc_id: {{ pillar.vpc.vpc_id }}
     - profile: primary_profile
 
-Ensure {{ cluster_name }} role exists:
+Ensure {{ grains.cluster_name }} role exists:
   boto_iam_role.present:
-    - name: {{ cluster_name }}
+    - name: {{ grains.cluster_name }}
     - policies:
         'bootstrap':
           Version: '2012-10-17'
@@ -59,14 +57,14 @@ Ensure {{ cluster_name }} role exists:
                 - 'elasticloadbalancing:RegisterInstancesWithLoadBalancer'
               Effect: 'Allow'
               Resource:
-                - 'arn:aws:elasticloadbalancing:*:*:loadbalancer/{{ cluster_name }}*'
+                - 'arn:aws:elasticloadbalancing:*:*:loadbalancer/{{ grains.cluster_name }}*'
             # Add S3 policy for artifact-based trebuchet mode
             - Action:
                 - 's3:Head*'
                 - 's3:Get*'
               Effect: 'Allow'
               Resource:
-                - 'arn:aws:s3:::rlane32-infra/deploy/{{ service_name }}/*'
+                - 'arn:aws:s3:::rlane32-infra/deploy/{{ grains.service_name }}/*'
                 - 'arn:aws:s3:::rlane32-infra/bootstrap/*'
             - Action:
                 - 's3:List*'
@@ -77,7 +75,7 @@ Ensure {{ cluster_name }} role exists:
               Condition:
                 StringLike:
                   's3:prefix':
-                    - 'deploy/{{ service_name }}/*'
+                    - 'deploy/{{ grains.service_name }}/*'
                     - 'bootstrap/*'
             - Action:
                 - 'ec2:DescribeTags'
@@ -86,9 +84,9 @@ Ensure {{ cluster_name }} role exists:
                 - '*'
     - profile: primary_profile
 
-Ensure {{ cluster_name }} elb exists:
+Ensure {{ grains.cluster_name }} elb exists:
   boto_elb.present:
-    - name: {{ cluster_name }}
+    - name: {{ grains.cluster_name }}
     - listeners:
         - elb_port: 80
           instance_port: 80
@@ -107,17 +105,17 @@ Ensure {{ cluster_name }} elb exists:
     - attributes: []
     - profile: primary_profile
 
-Ensure {{ cluster_name }} asg exists:
+Ensure {{ grains.cluster_name }} asg exists:
   boto_asg.present:
-    - name: {{ cluster_name }}
-    - launch_config_name: {{ cluster_name }}
+    - name: {{ grains.cluster_name }}
+    - launch_config_name: {{ grains.cluster_name }}
     - launch_config:
       - image_id: {{ salt['pillar.get']('ami:{0}:hvm:xenial'.format('useast1')) }}
       - key_name: {{ pillar.key_name }}
       - security_groups:
         - base
-        - {{ service_name }}
-      - instance_profile_name: {{ cluster_name }}
+        - {{ grains.service_name }}
+      - instance_profile_name: {{ grains.cluster_name }}
       - instance_type: t2.tiny
       - associate_public_ip_address: True
       - cloud_init:
@@ -149,7 +147,7 @@ Ensure {{ cluster_name }} asg exists:
               export DOMAIN="{{ pillar.domain }}"
               /srv/salt/venv/bin/salt-call --local -c /srv/ryandlane.com/salt/config/states/startup/salt state.sls startup
               salt-call state.highstate
-              salt-call grains.setval elbs "['{{ cluster_name }}']"
+              salt-call grains.setval elbs "['{{ grains.cluster_name }}']"
               salt-call state.sls elb.register
     - vpc_zone_identifier: {{ pillar.vpc.vpc_subnets }}
     - availability_zones: {{ pillar.vpc.vpc_azs }}
@@ -160,19 +158,19 @@ Ensure {{ cluster_name }} asg exists:
       # Adding a name tag makes it easier to identify the ASG nodes in the
       # instances list.
       - key: 'Name'
-        value: '{{ cluster_name }}'
+        value: '{{ grains.cluster_name }}'
         propagate_at_launch: true
     - profile: primary_profile
 
-Ensure {{ cluster_name }} RDS subnet group exists:
+Ensure {{ grains.cluster_name }} RDS subnet group exists:
   boto_rds.subnet_group_present:
-    - name: {{ cluster_name }}
+    - name: {{ grains.cluster_name }}
     - subnet_ids: {{ pillar.vpc.vpc_subnets }}
     - profile: primary_profile
 
-#Ensure {{ cluster_name }} RDS exists:
+#Ensure {{ grains.cluster_name }} RDS exists:
 #  boto_rds.present:
-#    - name: {{ cluster_name }}
+#    - name: {{ grains.cluster_name }}
 #    - allocated_storage: 5
 #    - storage_type: gp2
 #    - db_instance_class: db.t2.micro
@@ -180,10 +178,10 @@ Ensure {{ cluster_name }} RDS subnet group exists:
 #    - master_username: TODO
 #    - master_user_password: TODO
 #    - multi_az: True
-#    - db_subnet_group_name: {{ cluster_name }}
+#    - db_subnet_group_name: {{ grains.cluster_name }}
 #    - publicly_accessible: False
 #    - vpc_security_group_ids: 
-#      - {{ cluster_name }}
+#      - {{ grains.cluster_name }}
 #    - backup_retention_period: 14
 #    - wait_status: available
 #    - profile: primary_profile
