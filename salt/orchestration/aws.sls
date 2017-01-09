@@ -175,8 +175,8 @@ Ensure {{ cluster_name }} RDS subnet group exists:
 #    - storage_type: gp2
 #    - db_instance_class: db.t2.micro
 #    - engine: MySQL
-#    - master_username: {{ pillar.credentials.rds_master_username }}
-#    - master_user_password: {{ pillar.credentials.rds_master_password }}
+#    - master_username: TODO
+#    - master_user_password: TODO
 #    - multi_az: True
 #    - db_subnet_group_name: {{ cluster_name }}
 #    - publicly_accessible: False
