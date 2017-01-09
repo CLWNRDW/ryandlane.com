@@ -17,7 +17,7 @@ vpc:
 primary_profile:
   region: {{ aws_region }}
 
-key_name: ryanlanepersonal
+key_name: ryanlanerpersonal
 aws_account_id: 435973743168
 domain: ryandlane.com
 ami:
