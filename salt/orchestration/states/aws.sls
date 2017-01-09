@@ -26,6 +26,7 @@ Ensure elb security group exists:
           to_port: 443
           source_group_name: 0.0.0.0/0
     - vpc_id: {{ pillar.vpc.vpc_id }}
+    - profile: primary_profile
 
 Ensure {{ service_name }} security group exists:
   boto_secgroup.present:
@@ -37,6 +38,7 @@ Ensure {{ service_name }} security group exists:
           to_port: 80
           source_group_name: elb-external
     - vpc_id: {{ pillar.vpc.vpc_id }}
+    - profile: primary_profile
 
 Ensure {{ cluster_name }} role exists:
   boto_iam_role.present:
@@ -80,6 +82,7 @@ Ensure {{ cluster_name }} role exists:
               Effect: 'Allow'
               Resource:
                 - '*'
+    - profile: primary_profile
 
 Ensure {{ cluster_name }} elb exists:
   boto_elb.present:
@@ -100,6 +103,7 @@ Ensure {{ cluster_name }} elb exists:
         - name: blog.{{ pillar.domain }}.
           zone: {{ pillar.domain }}.
     - attributes: []
+    - profile: primary_profile
 
 Ensure {{ cluster_name }} asg exists:
   boto_asg.present:
@@ -156,11 +160,13 @@ Ensure {{ cluster_name }} asg exists:
       - key: 'Name'
         value: '{{ cluster_name }}'
         propagate_at_launch: true
+    - profile: primary_profile
 
 Ensure {{ cluster_name }} RDS subnet group exists:
   boto_rds.subnet_group_present:
     - name: {{ cluster_name }}
     - subnet_ids: {{ pillar.vpc.vpc_subnets }}
+    - profile: primary_profile
 
 #Ensure {{ cluster_name }} RDS exists:
 #  boto_rds.present:
@@ -178,3 +184,4 @@ Ensure {{ cluster_name }} RDS subnet group exists:
 #      - {{ cluster_name }}
 #    - backup_retention_period: 14
 #    - wait_status: available
+#    - profile: primary_profile

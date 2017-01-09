@@ -1,5 +1,6 @@
-key_name: ryanlanepersonal
-account_id: 435973743168
+# Currently one vpc per region
+{% if grains.region == 'useast1' %}
+{% set aws_region = 'us-east-1' %}
 vpc:
   vpc_id: vpc-ea50fc8f
   # Keep the ordering of these subnets and azs in sync; they match.
@@ -11,6 +12,13 @@ vpc:
     - us-east-1a
     - us-east-1d
     - us-east-1e
+{% endif %}
+
+primary_profile:
+  region: {{ aws_region }}
+
+key_name: ryanlanepersonal
+aws_account_id: 435973743168
 domain: ryandlane.com
 ami:
   useast1:
