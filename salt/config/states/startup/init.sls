@@ -1,9 +1,8 @@
-{% set hostname = '{0}-{1}'.format(grains['cluster_name'], grains['service_node']) %}
-# If the environment variable DOMAIN is set, use that for the domain.
-# Otherwise, use the domain grain.
-{% set domain = salt['environ.get']('DOMAIN', grains['domain']) %}
+{% if salt['environ.get']('CLUSTER_NAME') %}
+{# initial bootstrapping, set hostname and setup /etc/hosts #}
+{% set hostname = '{0}-{1}'.format(salt['environ.get']('CLUSTER_NAME'), grains['ec2_instance-id']) %}
+{% set domain = salt['environ.get']('DOMAIN') %}
 {% set fqdn = '{0}.{1}'.format(hostname, domain) %}
-
 Ensure hostname is set in /etc/hosts:
   host.present:
     - ip:
@@ -22,6 +21,7 @@ Ensure hostname is set:
     - name: hostname {{ hostname }}
     - unless: hostname | grep {{ hostname }}
     - reload_grains: True
+{% endif %}
 
 Ensure basic dependencies are installed:
   pkg.installed:
@@ -56,5 +56,5 @@ Ensure salt-call link exists:
 Ensure salt-minion configuration exists:
   file.managed:
     - name: /etc/salt/minion
-    - source: salt://common/salt/minion
+    - source: salt://startup/salt/minion
     - makedirs: True

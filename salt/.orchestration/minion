@@ -3,9 +3,11 @@ pki_dir: pki/minion
 cachedir: cache/minion
 file_roots:
   base:
-    - orchestration
+    - orchestration/states
 pillar_roots:
   base:
     - pillar
+module_dirs:
+  - orchestration/modules
 file_client: local
 ipc_mode: tcp

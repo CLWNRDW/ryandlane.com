@@ -144,6 +144,7 @@ Ensure {{ grains.workers.web.cluster_name }} asg exists:
               . /srv/salt/venv/bin/activate
               pip install -r /srv/ryandlane.com/requirements.txt
               deactivate
+              export CLUSTER_NAME="{{ grains.workers.web.cluster_name }}"
               export DOMAIN="{{ pillar.domain }}"
               /srv/salt/venv/bin/salt-call --local -c /srv/ryandlane.com/salt/config/states/startup/salt state.sls startup
               salt-call state.highstate
