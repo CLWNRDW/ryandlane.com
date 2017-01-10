@@ -4,7 +4,7 @@ Ensure human user {{ name }} exist:
     - name: {{ name }}
     - uid: {{ user.id }}
     - gid_from_name: True
-    - groups: {{ user.get('groups', [] }}
+    - groups: {{ user.get('groups', []) }}
     - shell: /bin/bash
     - createhome: True
     - password: '*'
