@@ -1,3 +1,4 @@
 include:
   - .users
   - .sudo
+  - .nfs
