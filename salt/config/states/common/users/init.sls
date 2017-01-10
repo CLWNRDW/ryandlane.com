@@ -8,7 +8,9 @@ Ensure human user {{ name }} exist:
     - shell: /bin/bash
     - createhome: True
     - password: '*'
+    {% if user.get('full_name') %}
     - fullname: {{ user.full_name }}
+    {% endif %}
     {% if user.get('disabled', False) %}
     - expire: 1
     {% endif %}
@@ -45,9 +47,11 @@ Ensure ssh private key for {{ name }} is absent:
     - name: /home/{{ name }}/.ssh/id_rsa
 {% endif %}
 
+{% if user.get('email') %}
 Ensure mail alias for {{ name }} is set:
   alias.present:
     - name: {{ name }}
     - target: {{ user.email }}
+{% endif %}
 {% endfor %}
 
