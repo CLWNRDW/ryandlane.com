@@ -3,6 +3,8 @@ users:
     id: 1001
     full_name: 'ryan lane'
     email: 'ryan@ryandlane.com'
+    groups:
+      - admin
     github: 'ryan-lane'
     iam_groups:
       - HumanUsers
