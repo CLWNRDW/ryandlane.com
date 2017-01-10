@@ -14,3 +14,4 @@ users:
   ubuntu:
     disabled: True
     id: 1000
+    full_name: 'ubuntu'
