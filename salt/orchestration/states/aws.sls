@@ -37,6 +37,10 @@ Ensure {{ grains.service_name }} security group exists:
           from_port: 80
           to_port: 80
           source_group_name: elb-external
+        - ip_protocol: tcp
+          from_port: 2049
+          to_port: 2049
+          source_group_name: {{ grains.service_name }}
     - vpc_id: {{ pillar.vpc.vpc_id }}
     - profile: primary_profile
 
