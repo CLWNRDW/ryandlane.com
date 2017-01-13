@@ -31,7 +31,7 @@ Ensure default site is absent:
     - listen_in:
         - service: apache2
 
-{% for mod in ['expires', 'mpm_prefork'] %}
+{% for mod in ['rewrite', 'expires', 'mpm_prefork'] %}
 Ensure {{ mod }} module is enabled:
   apache_module.enabled:
     - name: {{ mod }}
