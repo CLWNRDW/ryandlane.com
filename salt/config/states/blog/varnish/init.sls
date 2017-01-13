@@ -7,6 +7,13 @@ Ensure varnish is running:
     - name: varnish
     - enable: true
 
+Ensure varnish default is configured:
+  file.managed:
+    - name: /etc/default/varnish
+    - source: salt://blog/varnish/default
+    - listen_in:
+        - service: varnish
+
 Ensure varnish is configured:
   file.managed:
     - name: /etc/varnish/default.vcl
