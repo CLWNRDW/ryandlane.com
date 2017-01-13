@@ -27,14 +27,14 @@ Ensure apache2 is running:
 
 Ensure ports is configured:
   file.managed:
-    - name /etc/apache2/ports.conf
+    - name: /etc/apache2/ports.conf
     - source: salt://blog/apache/ports.conf
     - listen_in:
         - service: apache2
 
 Ensure default site is absent:
   file.absent:
-    - name /etc/apache2/sites-enabled/000-default.conf
+    - name: /etc/apache2/sites-enabled/000-default.conf
     - listen_in:
         - service: apache2
 
