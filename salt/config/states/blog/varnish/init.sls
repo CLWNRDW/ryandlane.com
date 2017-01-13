@@ -9,8 +9,9 @@ Ensure varnish is running:
 
 Ensure varnish default is configured:
   file.managed:
-    - name: /etc/default/varnish
-    - source: salt://blog/varnish/default
+    - name: /etc/systemd/system/varnish.service.d/override.conf
+    - source: salt://blog/varnish/override.conf
+    - makedirs: true
     - listen_in:
         - service: varnish
 
