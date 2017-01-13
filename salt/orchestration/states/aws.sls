@@ -68,7 +68,9 @@ Ensure {{ grains.iam_role_name }} role exists:
                 - 's3:Get*'
               Effect: 'Allow'
               Resource:
+                - 'arn:aws:s3:::rlane32-infra/deploy/{{ grains.service_name }}'
                 - 'arn:aws:s3:::rlane32-infra/deploy/{{ grains.service_name }}/*'
+                - 'arn:aws:s3:::rlane32-infra/bootstrap'
                 - 'arn:aws:s3:::rlane32-infra/bootstrap/*'
             - Action:
                 - 's3:List*'
@@ -78,7 +80,9 @@ Ensure {{ grains.iam_role_name }} role exists:
               Condition:
                 StringLike:
                   's3:prefix':
+                    - 'deploy/{{ grains.service_name }}'
                     - 'deploy/{{ grains.service_name }}/*'
+                    - 'bootstrap'
                     - 'bootstrap/*'
             # Add S3 policy for backups
             - Action:
@@ -87,6 +91,7 @@ Ensure {{ grains.iam_role_name }} role exists:
                 - 's3:Put*'
               Effect: 'Allow'
               Resource:
+                - 'arn:aws:s3:::rlane32-infra/backups/{{ grains.service_name }}'
                 - 'arn:aws:s3:::rlane32-infra/backups/{{ grains.service_name }}/*'
             - Action:
                 - 's3:List*'
@@ -96,6 +101,7 @@ Ensure {{ grains.iam_role_name }} role exists:
               Condition:
                 StringLike:
                   's3:prefix':
+                    - 'arn:aws:s3:::rlane32-infra/backups/{{ grains.service_name }}'
                     - 'arn:aws:s3:::rlane32-infra/backups/{{ grains.service_name }}/*'
             - Action:
                 - 'ec2:DescribeTags'
