@@ -1,6 +1,7 @@
 # This is a basic vcl.conf file for varnish.
 # Modifying this file should be where you store your modifications to
 # varnish. Settnigs here will override defaults.
+vcl 4.0;
 
 backend default {
  .host = "127.0.0.1";
@@ -21,44 +22,43 @@ sub vcl_recv {
    set req.http.X-Forwarded-For = client.ip;
   }
  }
- if (req.request == "PURGE") {
+ if (req.method == "PURGE") {
   if (!client.ip ~ purge) {
-   error 405 "Not allowed.";
+   return (synth(504,"Not allowed."));
   }
-  return (lookup);
+  return (hash);
  }
  # Only deal with "normal" types
- if (req.request != "GET" &&
-   req.request != "HEAD" &&
-   req.request != "PUT" &&
-   req.request != "POST" &&
-   req.request != "TRACE" &&
-   req.request != "OPTIONS" &&
-   req.request != "PATCH" &&
-   req.request != "DELETE") {
+ if (req.method != "GET" &&
+   req.method != "HEAD" &&
+   req.method != "PUT" &&
+   req.method != "POST" &&
+   req.method != "TRACE" &&
+   req.method != "OPTIONS" &&
+   req.method != "PATCH" &&
+   req.method != "DELETE") {
   /* Non-RFC2616 or CONNECT which is weird. */
   return (pipe);
  }
 
- if (req.request != "GET" && req.request != "HEAD") {
+ if (req.method != "GET" && req.method != "HEAD") {
   # We only deal with GET and HEAD by default
   return (pass);
  }
 
- set req.grace = 120s;
  # Normalize Accept-Encoding header
  # straight from the manual: https://www.varnish-cache.org/docs/3.0/tutorial/vary.html
  if (req.http.Accept-Encoding) {
   if (req.url ~ "\.(jpg|png|gif|gz|tgz|bz2|tbz|mp3|ogg)$") {
    # No point in compressing these
-   remove req.http.Accept-Encoding;
+   unset req.http.Accept-Encoding;
   } elsif (req.http.Accept-Encoding ~ "gzip") {
    set req.http.Accept-Encoding = "gzip";
   } elsif (req.http.Accept-Encoding ~ "deflate") {
    set req.http.Accept-Encoding = "deflate";
   } else {
    # unkown algorithm
-   remove req.http.Accept-Encoding;
+   unset req.http.Accept-Encoding;
   }
  }
 
@@ -68,7 +68,7 @@ sub vcl_recv {
  # Before you blindly enable this, have a read here: http://mattiasgeniar.be/2012/11/28/stop-caching-static-files/
  if (req.url ~ "^[^?]*\.(bmp|bz2|css|doc|eot|flv|gif|gz|ico|jpeg|jpg|js|less|mp[34]|pdf|png|rar|rtf|swf|tar|tgz|txt|wav|woff|xml|zip)(\?.*)?$") {
   unset req.http.cookie;
-  return (lookup);
+  return (hash);
  }
 
  if(req.http.X-Requested-With == "XMLHttpRequest" || req.url ~ "nocache" || req.url ~ "(control.php|wp-comments-post.php|wp-login.php|bb-login.php|bb-reset-password.php|register.php|xmlrpc.php)") {
@@ -84,7 +84,7 @@ sub vcl_recv {
   # Not cacheable by default
   return (pass);
  }
- return(lookup);
+ return(hash);
 }
 
 sub vcl_pipe {
@@ -93,9 +93,9 @@ sub vcl_pipe {
 }
 
 sub vcl_hit {
- if (req.request == "PURGE")
+ if (req.method == "PURGE")
   {ban(req.url);
-   error 200 "Purged";}
+   return (synth(200, "Purged"));}
 
  if (!(obj.ttl > 0s)) {
   return(pass);
@@ -103,13 +103,12 @@ sub vcl_hit {
 }
 
 sub vcl_miss {
- if (req.request == "PURGE") {
-  error 200 "Not in cache.";
+ if (req.method == "PURGE") {
+  return (synth(200, "Not in cache."));
  }
 }
 
-sub vcl_fetch {
- set beresp.http.X-Mobile = req.http.X-Mobile; # for debugging
+sub vcl_backend_response {
  if (!beresp.http.Vary) { # no Vary at all
   set beresp.http.Vary = "X-Mobile";
  } elseif (beresp.http.Vary !~ "X-Mobile") { # add to existing Vary
@@ -120,13 +119,13 @@ sub vcl_fetch {
  # the request will be error'ed. max_restarts defaults to 4. This prevents
  # an eternal loop in the event that, e.g., the object does not exist at all.
  if (beresp.status >= 500 && beresp.status <= 599){
-  return(restart);
+  return(retry);
  }
 
  # Enable cache for all static files
  # The same argument as the static caches from above: monitor your cache size, if you get data nuked out of it, consider giving up the static file cache.
  # Before you blindly enable this, have a read here: http://mattiasgeniar.be/2012/11/28/stop-caching-static-files/
- if (req.url ~ "^[^?]*\.(bmp|bz2|css|doc|eot|flv|gif|gz|ico|jpeg|jpg|js|less|mp[34]|pdf|png|rar|rtf|swf|tar|tgz|txt|wav|woff|xml|zip)(\?.*)?$") {
+ if (bereq.url ~ "^[^?]*\.(bmp|bz2|css|doc|eot|flv|gif|gz|ico|jpeg|jpg|js|less|mp[34]|pdf|png|rar|rtf|swf|tar|tgz|txt|wav|woff|xml|zip)(\?.*)?$") {
   unset beresp.http.set-cookie;
  }
 
@@ -140,14 +139,14 @@ sub vcl_fetch {
   set beresp.http.Location = regsub(beresp.http.Location, ":[0-9]+", "");
  }
 
- if (!(req.url ~ "wp-(login|admin)") &&
-     !(req.url ~ "rss")) {
+ if (!(bereq.url ~ "wp-(login|admin)") &&
+     !(bereq.url ~ "rss")) {
   unset beresp.http.set-cookie;
  }
  # Set 2min cache if unset for static files
  if (beresp.ttl <= 0s || beresp.http.Set-Cookie || beresp.http.Vary == "*") {
   set beresp.ttl = 120s;
-  return (hit_for_pass);
+  set beresp.uncacheable = true;
  }
  return(deliver);
 }
