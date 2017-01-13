@@ -1,0 +1,4 @@
+include:
+  - .nfs
+  - .apache
+  - .varnish
