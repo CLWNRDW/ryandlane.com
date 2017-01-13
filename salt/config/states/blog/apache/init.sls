@@ -2,8 +2,6 @@ Ensure apache2 packages are installed:
   pkg.installed:
     - names:
         - apache2
-        - apache2-mpm-prefork
-        - apache2-utils
 
 Ensure php packages are installed:
   pkg.installed:
