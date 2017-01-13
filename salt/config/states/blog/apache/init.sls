@@ -38,6 +38,18 @@ Ensure default site is absent:
     - listen_in:
         - service: apache2
 
+Ensure prefork module is enabled:
+  apache_module.enabled:
+    - name: mpm_prefork
+    - listen_in:
+        - service: apache2
+
+Ensure prefork module is disabled:
+  apache_module.enabled:
+    - name: mpm_prefork
+    - listen_in:
+        - service: apache2
+
 {% for site in ['ryandlane', 'alexborges'] %}
 Ensure {{ site }} site is available:
   file.managed:
@@ -47,9 +59,8 @@ Ensure {{ site }} site is available:
         - service: apache2
 
 Ensure {{ site }} site is enabled:
-  file.symlink:
-    - name: /etc/apache2/sites-enabled/{{ site }}
-    - target: /etc/apache2/sites-available/{{ site }}
+  apache_site.enabled:
+    - name: {{ site }}
     - listen_in:
         - service: apache2
 {% endfor %}
