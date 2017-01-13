@@ -18,11 +18,6 @@ Ensure php packages are installed:
         - php-apcu
         - php-memcached
 
-Ensure apache2 is running:
-  service.running:
-    - name: apache2
-    - enable: true
-
 Ensure ports is configured:
   file.managed:
     - name: /etc/apache2/ports.conf
@@ -36,15 +31,17 @@ Ensure default site is absent:
     - listen_in:
         - service: apache2
 
-Ensure prefork module is enabled:
+{% for mod in ['expires', 'mpm_prefork'] %}
+Ensure {{ mod }} module is enabled:
   apache_module.enabled:
-    - name: mpm_prefork
+    - name: {{ mod }}
     - listen_in:
         - service: apache2
+{% endfor %}
 
-Ensure prefork module is disabled:
-  apache_module.enabled:
-    - name: mpm_prefork
+Ensure mpm_event module is disabled:
+  apache_module.disabled:
+    - name: mpm_event
     - listen_in:
         - service: apache2
 
@@ -62,3 +59,8 @@ Ensure {{ site }} site is enabled:
     - listen_in:
         - service: apache2
 {% endfor %}
+
+Ensure apache2 is running:
+  service.running:
+    - name: apache2
+    - enable: true
