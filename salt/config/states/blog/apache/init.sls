@@ -51,8 +51,8 @@ Ensure prefork module is disabled:
 {% for site in ['ryandlane', 'alexborges'] %}
 Ensure {{ site }} site is available:
   file.managed:
-    - name: /etc/apache2/sites-available/{{ site }}
-    - source: salt://blog/apache/{{ site }}
+    - name: /etc/apache2/sites-available/{{ site }}.conf
+    - source: salt://blog/apache/{{ site }}.conf
     - listen_in:
         - service: apache2
 
