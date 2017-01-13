@@ -62,7 +62,7 @@ Ensure {{ grains.iam_role_name }} role exists:
               Effect: 'Allow'
               Resource:
                 - 'arn:aws:elasticloadbalancing:*:*:loadbalancer/{{ grains.workers.web.cluster_name }}*'
-            # Add S3 policy for artifact-based trebuchet mode
+            # Add S3 policy for bootstrapping and deployment
             - Action:
                 - 's3:Head*'
                 - 's3:Get*'
@@ -72,7 +72,6 @@ Ensure {{ grains.iam_role_name }} role exists:
                 - 'arn:aws:s3:::rlane32-infra/bootstrap/*'
             - Action:
                 - 's3:List*'
-                - 's3:Get*'
               Effect: 'Allow'
               Resource:
                 - 'arn:aws:s3:::rlane32-infra'
@@ -81,6 +80,23 @@ Ensure {{ grains.iam_role_name }} role exists:
                   's3:prefix':
                     - 'deploy/{{ grains.service_name }}/*'
                     - 'bootstrap/*'
+            # Add S3 policy for backups
+            - Action:
+                - 's3:Head*'
+                - 's3:Get*'
+                - 's3:Put*'
+              Effect: 'Allow'
+              Resource:
+                - 'arn:aws:s3:::rlane32-infra/backups/{{ grains.service_name }}/*'
+            - Action:
+                - 's3:List*'
+              Effect: 'Allow'
+              Resource:
+                - 'arn:aws:s3:::rlane32-infra'
+              Condition:
+                StringLike:
+                  's3:prefix':
+                    - 'arn:aws:s3:::rlane32-infra/backups/{{ grains.service_name }}/*'
             - Action:
                 - 'ec2:DescribeTags'
               Effect: 'Allow'
