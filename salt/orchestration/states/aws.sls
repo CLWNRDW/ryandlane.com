@@ -217,3 +217,28 @@ Ensure {{ grains.iam_role_name }} RDS subnet group exists:
 #    - backup_retention_period: 14
 #    - wait_status: available
 #    - profile: primary_profile
+
+# Elasticache's naming needs to be <20 chars
+
+Ensure {{ grains.service_name }}-{{ grains.service_instance_short }}-{{ grains.region }} subnet group exists:
+  boto_elasticache.subnet_group_present:
+    - name: {{ grains.service_name }}-{{ grains.service_instance_short }}-{{ grains.region }}
+    - subnet_names:
+        - production-useast1-1a
+        - production-useast1-1d
+        - production-useast1-1e
+    - description: {{ grains.service_name }}-{{ grains.service_instance_short }}-{{ grains.region }}
+    - profile: primary_profile
+
+Ensure {{ grains.service_name }}-{{ grains.service_instance_short }}-{{ grains.region }} memcached exists:
+  boto_elasticache.present:
+    - name: {{ grains.service_name }}-{{ grains.service_instance_short }}-{{ grains.region }}
+    - engine: memcached
+    - cache_node_type: cache.t2.micro
+    - num_cache_nodes: 1
+    - engine_version: 1.4.33
+    - cache_subnet_group_name: {{ grains.service_name }}-{{ grains.service_instance_short }}-{{ grains.region }}
+    - cache_security_group_names:
+        - {{ grains.service_name }}
+    - wait: false
+    - profile: primary_profile

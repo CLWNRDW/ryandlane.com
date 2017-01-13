@@ -23,6 +23,7 @@ def parse_env():
     return {
         'service_name': service_name,
         'service_instance': service_instance,
+        'service_instance_short': str(service_instance[:4]),
         'region': region,
         'service_group': service_group,
         'iam_role_name': iam_role_name,
