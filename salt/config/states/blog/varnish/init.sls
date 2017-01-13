@@ -12,6 +12,12 @@ Ensure varnish default is configured:
     - name: /etc/systemd/system/varnish.service.d/override.conf
     - source: salt://blog/varnish/override.conf
     - makedirs: true
+
+Ensure systemd is reloaded on varnish change:
+  module.run:
+    - name: service.systemctl_reload
+    - onchanges:
+      - file: /etc/systemd/system/varnish.service.d/override.conf
     - listen_in:
         - service: varnish
 
