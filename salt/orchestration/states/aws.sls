@@ -122,7 +122,7 @@ Ensure {{ grains.workers.web.cluster_name }} elb exists:
           instance_port: 80
           elb_protocol: HTTP
     - health_check:
-        target: 'HTTP:80/healthcheck'
+        target: 'HTTP:80/'
     - subnets:
       {% for subnet in pillar.vpc.vpc_subnets %}
       - {{ subnet }}
