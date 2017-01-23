@@ -14,6 +14,7 @@ Ensure php packages are installed:
         - php7.0-mysql
         - php7.0-gmp
         - php7.0-tidy
+        - php7.0-mbstring
         - php-openid
         - php-apcu
         - php-memcached
