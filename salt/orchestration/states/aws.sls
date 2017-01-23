@@ -132,6 +132,8 @@ Ensure {{ grains.workers.web.cluster_name }} elb exists:
     - cnames:
         - name: blog.{{ pillar.domain }}.
           zone: {{ pillar.domain }}.
+        - name: rss.{{ pillar.domain }}.
+          zone: {{ pillar.domain }}.
     - attributes: []
     - profile: primary_profile
 
