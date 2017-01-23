@@ -134,6 +134,8 @@ Ensure {{ grains.workers.web.cluster_name }} elb exists:
           zone: {{ pillar.domain }}.
         - name: rss.{{ pillar.domain }}.
           zone: {{ pillar.domain }}.
+        - name: www.{{ pillar.domain }}.
+          zone: {{ pillar.domain }}.
     - attributes: []
     - profile: primary_profile
 
