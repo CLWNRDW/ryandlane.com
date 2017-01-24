@@ -45,6 +45,10 @@ Ensure {{ grains.service_name }} security group exists:
           from_port: 3306
           to_port: 3306
           source_group_name: {{ grains.service_name }}
+        - ip_protocol: tcp
+          from_port: 11211
+          to_port: 11211
+          source_group_name: {{ grains.service_name }}
     - vpc_id: {{ pillar.vpc.vpc_id }}
     - profile: primary_profile
 
