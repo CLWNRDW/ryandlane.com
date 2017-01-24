@@ -121,6 +121,11 @@ Ensure {{ grains.workers.web.cluster_name }} elb exists:
         - elb_port: 80
           instance_port: 80
           elb_protocol: HTTP
+        - elb_port: 443
+          instance_port: 80
+          elb_protocol: HTTPS
+          instance_protocol: HTTP
+          certificate: 'arn:aws:iam::{{ pillar.aws_account_id }}:certificate/4ecc3811-1d89-4fdf-ae0b-04163ffc546c'
     - health_check:
         target: 'TCP:80'
     - subnets:
