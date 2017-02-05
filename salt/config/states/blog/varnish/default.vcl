@@ -13,6 +13,26 @@ acl purge {
  "127.0.0.1";
 }
 
+sub vcl_hash {
+  # URL and hostname/IP are the default components of the vcl_hash
+  # implementation. We add more below.
+  hash_data(req.url);
+  if (req.http.host) {
+      hash_data(req.http.host);
+  } else {
+      hash_data(server.ip);
+  }
+
+  # Include the X-Forward-Proto header, since we want to treat HTTPS
+  # requests differently, and make sure this header is always passed
+  # properly to the backend server.
+  if (req.http.X-Forwarded-Proto) {
+    hash_data(req.http.X-Forwarded-Proto);
+  }
+
+  return (lookup);
+}
+
 sub vcl_recv {
  call device_detection;
  if (req.restarts == 0) {
