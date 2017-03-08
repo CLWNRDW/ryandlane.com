@@ -66,6 +66,10 @@ sub vcl_recv {
   return (pass);
  }
 
+ if (req.http.host ~ "rss.ryandlane.com") {
+  return (pass);
+ }
+
  # Normalize Accept-Encoding header
  # straight from the manual: https://www.varnish-cache.org/docs/3.0/tutorial/vary.html
  if (req.http.Accept-Encoding) {
@@ -95,8 +99,7 @@ sub vcl_recv {
   return (pass);
  }
 
- if (!(req.url ~ "wp-(login|admin)") &&
-     !(req.url ~ "rss")) {
+ if (!(req.url ~ "wp-(login|admin)")) {
   unset req.http.cookie;
  }
 
@@ -159,10 +162,6 @@ sub vcl_backend_response {
   set beresp.http.Location = regsub(beresp.http.Location, ":[0-9]+", "");
  }
 
- if (!(bereq.url ~ "wp-(login|admin)") &&
-     !(bereq.url ~ "rss")) {
-  unset beresp.http.set-cookie;
- }
  # Set 2min cache if unset for static files
  if (beresp.ttl <= 0s || beresp.http.Set-Cookie || beresp.http.Vary == "*") {
   set beresp.ttl = 120s;
