@@ -162,6 +162,11 @@ sub vcl_backend_response {
   set beresp.http.Location = regsub(beresp.http.Location, ":[0-9]+", "");
  }
 
+ if (!(bereq.url ~ "wp-(login|admin)") &&
+     !(bereq.url ~ "rss")) {
+  unset beresp.http.set-cookie;
+ }
+
  # Set 2min cache if unset for static files
  if (beresp.ttl <= 0s || beresp.http.Set-Cookie || beresp.http.Vary == "*") {
   set beresp.ttl = 120s;
